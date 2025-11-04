@@ -1,6 +1,9 @@
-# Import database instance from app
-from app import db
+# Import database instance
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+
+# Create db instance that will be initialized later
+db = SQLAlchemy()
 
 #camper model for the person attending camp
 class Camper(db.Model):
