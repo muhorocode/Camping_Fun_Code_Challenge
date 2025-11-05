@@ -27,6 +27,21 @@ def get_campers():
     campers=Camper.query.all()
     return jsonify([camper.to_dict() for camper in campers])
 
+#create new camper
+@app.route('/campers', methods=['POST'])
+def create_camper():
+    try:
+        data=request.get_json()
+        camper=Camper(name=data['name'], age=data['age'])
+        db.session.add(camper)
+        db.session.commit()
+        return jsonify(camper.to_dict()),201
+    except ValueError as e:
+        return jsonify({'errors':[str(e)]}), 400
+    except Exception as e:
+        return jsonify({'errors':['invalid data']}), 400
+
+
 #get all activities
 @app.route('/activities', methods=['GET'])
 def get_activities():
