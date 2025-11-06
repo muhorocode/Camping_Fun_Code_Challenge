@@ -47,8 +47,8 @@ def create_camper():
 def get_camper(id):
     camper=Camper.query.get(id)#find camper by id
     if not camper:
-        return jsonify({'error':'camper not found'}), 404 #return 404 if not found
-    return jsonify(camper.to_dict())#return camper data
+        return jsonify({'error':'Camper not found'}), 404 #return 404 if not found
+    return jsonify(camper.to_dict(include_signups=True))#return camper data with signups
 
 #PATCH (updating the camper by id)
 @app.route('/campers/<int:id>', methods=['PATCH'])
@@ -95,7 +95,7 @@ def create_signup():
         )
         db.session.add(signup) #add to db session
         db.session.commit()#save changes
-        return jsonify(signup.to_dict()), 201 #return created signup
+        return jsonify(signup.to_dict(include_relations=True)), 201 #return created signup with nested data
     except ValueError as e: #handle validation errors
         return jsonify({'errors':[str(e)]}), 400
     except Exception as e: #handle other errors

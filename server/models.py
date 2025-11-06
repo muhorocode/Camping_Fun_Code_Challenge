@@ -14,6 +14,9 @@ class Camper(db.Model):
     name=db.Column(db.String, nullable=False)
     age=db.Column(db.Integer, nullable=False)
     
+    # Relationship
+    signups = db.relationship('Signup', back_populates='camper', cascade='all, delete-orphan')
+    
     #making sure name is not empty
     @validates('name')
     def validate_name(self,key,name):
@@ -30,12 +33,15 @@ class Camper(db.Model):
 
     #convert camper to dictionary for JSON response
 
-    def to_dict(self):
-        return{
+    def to_dict(self, include_signups=False):
+        data = {
             'id':self.id,
             'name':self.name,
             'age':self.age
         }
+        if include_signups:
+            data['signups'] = [signup.to_dict(include_relations=True) for signup in self.signups]
+        return data
 #activity model for camp activities
 class Activity(db.Model):
     __tablename__='activities'
@@ -44,6 +50,9 @@ class Activity(db.Model):
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String, nullable=False)
     difficulty=db.Column(db.Integer, nullable=False)
+    
+    # Relationship with cascade delete
+    signups = db.relationship('Signup', back_populates='activity', cascade='all, delete-orphan')
 
     #convert activity to dictionary
     def to_dict(self):
@@ -62,6 +71,10 @@ class Signup(db.Model):
     camper_id=db.Column(db.Integer, db.ForeignKey('campers.id'), nullable=False)
     activity_id=db.Column(db.Integer, db.ForeignKey('activities.id'), nullable=False)
     time=db.Column(db.Integer, nullable=False) # hour of the day between 0-23
+    
+    # Relationships
+    camper = db.relationship('Camper', back_populates='signups')
+    activity = db.relationship('Activity', back_populates='signups')
 
     #making sure time is valid hour
 
@@ -72,10 +85,14 @@ class Signup(db.Model):
         return time
 
     #convert signup to dictionary
-    def to_dict(self):
-        return{
+    def to_dict(self, include_relations=False):
+        data = {
             'id':self.id,
             'camper_id':self.camper_id,
             'activity_id':self.activity_id,
             'time':self.time
         }
+        if include_relations:
+            data['camper'] = self.camper.to_dict()
+            data['activity'] = self.activity.to_dict()
+        return data
