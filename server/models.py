@@ -32,7 +32,6 @@ class Camper(db.Model):
         return age
 
     #convert camper to dictionary for JSON response
-
     def to_dict(self, include_signups=False):
         data = {
             'id':self.id,
@@ -42,10 +41,10 @@ class Camper(db.Model):
         if include_signups:
             data['signups'] = [signup.to_dict(include_relations=True) for signup in self.signups]
         return data
+
 #activity model for camp activities
 class Activity(db.Model):
     __tablename__='activities'
-
     #activity details
     id=db.Column(db.Integer, primary_key=True)
     name=db.Column(db.String, nullable=False)
@@ -65,7 +64,6 @@ class Activity(db.Model):
 #signup model links campers to activities
 class Signup(db.Model):
     __tablename__='signups'
-
     #signup information
     id=db.Column(db.Integer, primary_key=True)
     camper_id=db.Column(db.Integer, db.ForeignKey('campers.id'), nullable=False)
@@ -77,7 +75,6 @@ class Signup(db.Model):
     activity = db.relationship('Activity', back_populates='signups')
 
     #making sure time is valid hour
-
     @validates('time')
     def validate_time(self,key,time):
         if not isinstance(time,int) or time <0 or time >23:
